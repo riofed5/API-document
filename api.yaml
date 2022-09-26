@@ -17,8 +17,8 @@ tags:
     description: user details
 
 paths:
-  #REST API documentation for /book
-  /books: # GET /book or GET /book?page=1
+  #REST API documentation for /books
+  /: #GET /books?page=1
     get:
       tags:
         - "book"
@@ -38,7 +38,7 @@ paths:
           description: "OK"
         400:
           description: "Invalid status value"
-  /book/{ISBN}: # GET /book/972938717
+  /{ISBN}: # GET /books/972938717
     get:
       tags:
         - "book"
@@ -58,7 +58,7 @@ paths:
           description: "OK"
         "400":
           description: "Invalid status value"
-  /book/addNewBooks: # POST /book/addNewBooks?role=admin
+  /: # POST /books/?role=admin
     post:
       tags:
         - book
@@ -81,7 +81,7 @@ paths:
           description: "OK"
         400:
           description: "Invalid input"
-  /book/{bookID}/updateInfo: # PUT /book/1/updateInfo?role=admin
+  /{bookID}: # PUT /books/1?role=admin
     put:
       tags:
         - "book"
@@ -111,7 +111,7 @@ paths:
           description: "OK"
         400:
           description: "Invalid input"
-  /book/{bookID}/deletebook: # DELETE /book/1/deletebook?role=admin
+  /{bookID}: # DELETE /books/1/deletebook?role=admin
     delete:
       tags:
         - "book"
@@ -137,14 +137,58 @@ paths:
           description: "Invalid input"
         404:
           description: "Book not Found"
+  /cancel/{bookID}: # PUT /books/cancel/1
+    put:
+      tags:
+        - "cancel booking"
+      summary: "cancel booking a book"
+      description: "Cancel booking a book"
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: bookID
+          type: integer
+          format: int64
+          required: true
+      responses:
+        200:
+          description: "OK"
+        400:
+          description: "Invalid input"
+  /booking/{bookID}: # PUT /books/booking/1
+    put:
+      tags:
+        - "Make booking"
+      summary: "Make booking a book"
+      description: "Make booking a book"
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: "Updated book object"
+          required: true
+          schema:
+            $ref: "#/definitions/Book"
+        - in: path
+          name: bookID
+          type: integer
+          format: int64
+          required: true
+      responses:
+        200:
+          description: "OK"
+        400:
+          description: "Invalid input"
 
   #REST API documentation for /user
-  /user/signup: # POST /user/signup
+  /: # POST /users
     post:
       tags:
         - "user"
       summary: "Create user"
-      description: "This can only be done by the logged in user."
+      description: "Create new user"
       operationId: "createUser"
       produces:
         - "application/xml"
@@ -159,7 +203,37 @@ paths:
       responses:
         default:
           description: "Sign Up successfully"
-  /user/signin: # GET /user/signin?user=admin&&password=admin
+  /login/google: # POST /users/login/google
+    post:
+      tags:
+        - "user"
+      summary: "Login user"
+      description: "Login user by google service"
+      operationId: "createUser"
+      produces:
+        - "application/xml"
+        - "application/json"
+      responses:
+        default:
+          description: "Log In by google service successfully"
+  /requestPassowrd: # POST /users/requestPassowrd
+    post:
+      tags:
+        - "user"
+      summary: "Request new password user"
+      description: "This can only be done by the logged in user."
+      produces:
+        - "application/xml"
+        - "application/json"
+      parameters:
+        - in: body
+          name: body
+          description: "Request new PW user object"
+          required: true
+      responses:
+        default:
+          description: "Request new PW successfully"
+  /signin: # GET /users/signin?user=admin&&password=admin
     get:
       tags:
         - "user"
@@ -189,8 +263,8 @@ paths:
           description: "Invalid input"
         404:
           description: "User not Found"
-  /user/{userID}/updatepassword:
-    put: # PUT /user/123nbab81239/updatepassword
+  /updatepassword/{userID}:
+    put: # PUT /users/updatepassword/123nbab81239
       tags:
         - "user"
       summary: "Updated user password"
@@ -220,8 +294,8 @@ paths:
           description: "Invalid user supplied"
         "404":
           description: "User not found"
-  /user/{userID}:
-    get: # GET /user/123nbab81239
+  /{userID}:
+    get: # GET /users/123nbab81239
       tags:
         - "user"
       summary: "Get user by user ID"
@@ -243,7 +317,7 @@ paths:
           description: "Invalid username supplied"
         "404":
           description: "User not found"
-    put: # PUT /user/123nbab81239
+    put: # PUT /users/123nbab81239
       tags:
         - "user"
       summary: "Updated user"
@@ -272,7 +346,7 @@ paths:
           description: "Invalid user supplied"
         "404":
           description: "User not found"
-    delete: # DELETE /user/123nbab81239
+    delete: # DELETE /users/123nbab81239
       tags:
         - "user"
       summary: "Delete user"
@@ -289,6 +363,91 @@ paths:
       responses:
         "400":
           description: "Invalid username supplied"
+        "404":
+          description: "User not found"
+  #REST API documentation for /authors
+  /: # POST /authors
+    post:
+      tags:
+        - "author"
+      summary: "Create author"
+      description: "Create new author"
+      operationId: "createAuthor"
+      produces:
+        - "application/xml"
+        - "application/json"
+      parameters:
+        - in: body
+          name: body
+          description: "Created Author object"
+          required: true
+      responses:
+        default:
+          description: "successfully"
+  /{authorID}:
+    get: # GET /authors/123nbab81239
+      tags:
+        - "author"
+      summary: "Get author by user ID"
+      description: "Get author by author ID"
+      produces:
+        - "application/xml"
+        - "application/json"
+      parameters:
+        - name: authorID
+          in: path
+          required: true
+          type: string
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Invalid username supplied"
+        "404":
+          description: "Author not found"
+    put: # PUT /authors/123nbab81239
+      tags:
+        - "author"
+      summary: "Updated author"
+      produces:
+        - "application/xml"
+        - "application/json"
+      parameters:
+        - name: authorId
+          in: path
+          description: "authorId that need to be updated"
+          required: true
+          type: "string"
+        - in: body
+          name: body
+          description: "Updated user object"
+          required: true
+      responses:
+        "200":
+          description: "Update author successfully"
+        "400":
+          description: "Invalid author supplied"
+        "404":
+          description: "Author not found"
+    delete: # DELETE /authors/123nbab81239
+      tags:
+        - "author"
+      summary: "Delete author"
+      description: "This can only be done by the logged in user."
+      produces:
+        - "application/xml"
+        - "application/json"
+      parameters:
+        - name: authorID
+          in: path
+          description: "authorID that needs to be deleted"
+          required: true
+          type: "string"
+      responses:
+        "200":
+          description: "Delete author successfully"
+        "400":
+          description: "Invalid author supplied"
         "404":
           description: "User not found"
 definitions:
