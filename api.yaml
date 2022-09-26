@@ -1,0 +1,405 @@
+swagger: "2.0"
+info:
+  description: "demo"
+  version: "1.0.0"
+  title: "Library Store"
+host: "library.io"
+basePath: "/v2"
+schemes:
+  - "https"
+  - "http"
+
+# tags are used for organizing operations
+tags:
+  - name: book
+    description: book Details
+  - name: user
+    description: user details
+
+paths:
+  #REST API documentation for /book
+  /books: # GET /book or GET /book?page=1
+    get:
+      tags:
+        - "book"
+      summary: "get all books from store"
+      description: "return all available books in store"
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: page
+          type: integer
+          minimum: 1
+          default: 1
+          description: "The page of list of books"
+      responses:
+        200:
+          description: "OK"
+        400:
+          description: "Invalid status value"
+  /book/{ISBN}: # GET /book/972938717
+    get:
+      tags:
+        - "book"
+      summary: "Finds Books by ISBN"
+      description: "Multiple status values can be provided with comma separated strings"
+      produces:
+        - "application/xml"
+        - "application/json"
+      parameters:
+        - name: ISBN
+          in: path
+          required: true
+          type: string
+          description: "The book ISBN number"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          description: "Invalid status value"
+  /book/addNewBooks: # POST /book/addNewBooks?role=admin
+    post:
+      tags:
+        - book
+      summary: add New Book in Store
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/Book"
+        - in: query
+          name: role
+          required: true
+          type: string
+          enum: ["admin"]
+      responses:
+        200:
+          description: "OK"
+        400:
+          description: "Invalid input"
+  /book/{bookID}/updateInfo: # PUT /book/1/updateInfo?role=admin
+    put:
+      tags:
+        - "book"
+      summary: "Update info of a book"
+      description: "Update info of a book"
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: "Updated book object"
+          required: true
+          schema:
+            $ref: "#/definitions/Book"
+        - in: path
+          name: bookID
+          type: integer
+          format: int64
+          required: true
+        - in: query
+          name: role
+          required: true
+          type: string
+          enum: ["admin"]
+      responses:
+        200:
+          description: "OK"
+        400:
+          description: "Invalid input"
+  /book/{bookID}/deletebook: # DELETE /book/1/deletebook?role=admin
+    delete:
+      tags:
+        - "book"
+      summary: "Delete book from store by bookId"
+      description: "Delete book from store by bookId"
+      produces:
+        - application/json
+      parameters:
+        - name: bookID
+          in: path
+          required: true
+          type: integer
+          format: int64
+        - in: query
+          name: role
+          required: true
+          type: string
+          enum: ["admin"]
+      responses:
+        200:
+          description: "OK"
+        400:
+          description: "Invalid input"
+        404:
+          description: "Book not Found"
+
+  #REST API documentation for /user
+  /user/signup: # POST /user/signup
+    post:
+      tags:
+        - "user"
+      summary: "Create user"
+      description: "This can only be done by the logged in user."
+      operationId: "createUser"
+      produces:
+        - "application/xml"
+        - "application/json"
+      parameters:
+        - in: body
+          name: body
+          description: "Created user object"
+          required: true
+          schema:
+            $ref: "#/definitions/SignUpInfo"
+      responses:
+        default:
+          description: "Sign Up successfully"
+  /user/signin: # GET /user/signin?user=admin&&password=admin
+    get:
+      tags:
+        - "user"
+      summary: "Check the existence of user"
+      description: "Check the existence of user"
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - in: query
+          name: username
+          description: "User name for login"
+          required: true
+          type: string
+        - in: query
+          name: password
+          description: "Password for login"
+          required: true
+          type: string
+          format: password
+      responses:
+        200:
+          description: "Login successfully"
+          schema:
+            type: string
+        400:
+          description: "Invalid input"
+        404:
+          description: "User not Found"
+  /user/{userID}/updatepassword:
+    put: # PUT /user/123nbab81239/updatepassword
+      tags:
+        - "user"
+      summary: "Updated user password"
+      description: "This can only be done by the logged in user."
+      operationId: "updateUser"
+      produces:
+        - "application/xml"
+        - "application/json"
+      parameters:
+        - name: userID
+          in: path
+          description: "userID that need to be updated"
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: "Updated user object"
+          required: true
+          schema:
+            $ref: "#/definitions/ChangePassword"
+      responses:
+        "200":
+          description: "Change password successfully"
+          schema:
+            $ref: "#/definitions/User"
+        "400":
+          description: "Invalid user supplied"
+        "404":
+          description: "User not found"
+  /user/{userID}:
+    get: # GET /user/123nbab81239
+      tags:
+        - "user"
+      summary: "Get user by user ID"
+      description: "Get user by user ID"
+      produces:
+        - "application/xml"
+        - "application/json"
+      parameters:
+        - name: userID
+          in: path
+          required: true
+          type: string
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/User"
+        "400":
+          description: "Invalid username supplied"
+        "404":
+          description: "User not found"
+    put: # PUT /user/123nbab81239
+      tags:
+        - "user"
+      summary: "Updated user"
+      description: "This can only be done by the logged in user."
+      produces:
+        - "application/xml"
+        - "application/json"
+      parameters:
+        - name: userID
+          in: path
+          description: "userID that need to be updated"
+          required: true
+          type: "string"
+        - in: body
+          name: body
+          description: "Updated user object"
+          required: true
+          schema:
+            $ref: "#/definitions/UserUpdateInfo"
+      responses:
+        "200":
+          description: "Change password successfully"
+          schema:
+            $ref: "#/definitions/User"
+        "400":
+          description: "Invalid user supplied"
+        "404":
+          description: "User not found"
+    delete: # DELETE /user/123nbab81239
+      tags:
+        - "user"
+      summary: "Delete user"
+      description: "This can only be done by the logged in user."
+      produces:
+        - "application/xml"
+        - "application/json"
+      parameters:
+        - name: userID
+          in: path
+          description: "The name that needs to be deleted"
+          required: true
+          type: "string"
+      responses:
+        "400":
+          description: "Invalid username supplied"
+        "404":
+          description: "User not found"
+definitions:
+  Book:
+    type: object
+    required:
+      - bookId
+      - title
+      - description
+      - publisher
+      - authors
+      - status
+      - borrower ID
+      - publishDate
+      - borrowDate
+      - returnDate
+    properties:
+      bookId:
+        type: integer
+        format: int64
+      title:
+        type: string
+        example: Widget Adapter
+      description:
+        type: string
+        example: Description
+      publisher:
+        type: string
+        example: Publisher
+      authors:
+        type: array
+        items:
+          type: string
+        example: ["authors1", "authors 2"]
+      status:
+        type: string
+        example: borrowed
+      publishDate:
+        type: string
+        format: date-time
+      borrowDate:
+        type: string
+        format: date-time
+      returnDate:
+        type: string
+        format: date-time
+  User:
+    type: object
+    properties:
+      username:
+        type: string
+      userID:
+        type: integer
+        format: int64
+      firstName:
+        type: string
+        example: Adam
+      lastName:
+        type: string
+        example: Levine
+      email:
+        type: string
+        example: testing@gmail.com
+  ChangePassword:
+    type: object
+    required:
+      - username
+      - oldPassword
+      - newPassword
+    properties:
+      username:
+        type: string
+      oldPassword:
+        type: string
+        format: password
+      newPassword:
+        type: string
+        format: password
+  UserUpdateInfo:
+    type: object
+    required:
+      - firstName
+      - lastName
+      - email
+    properties:
+      firstName:
+        type: string
+      lastName:
+        type: string
+      email:
+        type: string
+  SignUpInfo:
+    type: object
+    required:
+      - username
+      - password
+      - firstName
+      - lastName
+      - email
+    properties:
+      username:
+        type: string
+      password:
+        type: string
+        format: password
+      firstName:
+        type: string
+        example: Adam
+      lastName:
+        type: string
+        example: Levine
+      email:
+        type: string
+        example: testing@gmail.com
